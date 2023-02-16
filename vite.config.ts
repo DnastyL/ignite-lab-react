@@ -6,7 +6,7 @@ export default defineConfig({
   server:{
     proxy:{
       '/vi/': 'https://i.ytimg.com/'
-    }
+    },
   },
   plugins: [react()]
 })
