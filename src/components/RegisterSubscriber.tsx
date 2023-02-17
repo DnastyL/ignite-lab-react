@@ -50,6 +50,7 @@ export const RegisterSubscriber = () => {
     }
   }
 
+  
 
  
   return (
@@ -65,6 +66,7 @@ export const RegisterSubscriber = () => {
             <input
               className="peer"
               placeholder=""
+              value={subscribeValues.password}
               id="password"
               name="password"
               type="password"

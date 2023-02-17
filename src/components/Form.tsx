@@ -69,8 +69,14 @@ export const Form = ({
     return setLessonValues({ ...lessonValues, [name]: localISOTime });
   }
 
+  console.log(subscribeValues?.password);
+
   return (
-    <form onSubmit={handleSubscribe} className="flex flex-col gap-2 w-full" autoComplete="off">
+    <form
+      onSubmit={handleSubscribe}
+      className="flex flex-col gap-2 w-full"
+      autoComplete="off"
+    >
       {!formLesson ? (
         <>
           <div className="relative">
@@ -81,6 +87,9 @@ export const Form = ({
               id="username"
               name="name"
               type="text"
+              value={
+                !instructor ? subscribeValues?.name : teacherValues?.name
+              }
               onChange={(event) => {
                 const valueReplace = event.target.value
                   .replace(/^(\s)|\d/gm, "")
@@ -118,6 +127,9 @@ export const Form = ({
             <input
               className="peer"
               placeholder=""
+              value={
+                !instructor ? subscribeValues?.email : teacherValues?.email
+              }
               name="email"
               type="email"
               id="useremail"
