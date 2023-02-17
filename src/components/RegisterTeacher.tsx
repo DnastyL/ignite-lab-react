@@ -104,6 +104,7 @@ export const RegisterTeacher = () => {
             <input
               className="peer"
               placeholder=""
+              value={teacherValues.password}
               id="password"
               name="password"
               type="password"
