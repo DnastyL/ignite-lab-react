@@ -7,48 +7,54 @@ import {
   Image,
 } from "phosphor-react";
 import "@vime/core/themes/default.css";
-import { Stage, useGetLessonBySlugQuery,  } from "../graphql/generated";
+import { Stage, useGetLessonBySlugQuery } from "../graphql/generated";
 import { Home } from "../pages/Home";
 import { useEffect } from "react";
 import { useContextValues } from "../hooks/useContext";
 
-
 interface VideoProps {
   lessonSlug: string | undefined;
-  stageLesson: Stage
+  stageLesson: Stage;
 }
 
 export const Video = ({ lessonSlug, stageLesson }: VideoProps) => {
-  const { data } = useGetLessonBySlugQuery({
+  const { data, fetchMore } = useGetLessonBySlugQuery({
     variables: {
       slug: lessonSlug,
       stage: stageLesson,
     },
   });
-  const { setApiTarget } = useContextValues();
+  const { setApiTarget, triggerTeacherLessons } = useContextValues();
 
-  useEffect(() =>{
-    setApiTarget(data?.lesson?.videoId)
-  },[data?.lesson?.videoId])
+  useEffect(() => {
+    if (lessonSlug) {
+      fetchMore({
+        variables: {
+          slug: lessonSlug,
+          stage: stageLesson,
+        },
+      });
+    }
+  }, [triggerTeacherLessons, lessonSlug]);
 
-    
+  useEffect(() => {
+    setApiTarget(data?.lesson?.videoId);
+  }, [data?.lesson?.videoId]);
 
-  if (!data || !data.lesson  ) {
+  if (!data || !data.lesson) {
     return (
       <div className="flex-1 items-center justify-center">
-        <Home/>
+        <Home />
       </div>
     );
   }
-  
- 
 
   return (
     <div className="flex-1">
       <div className="bg-black flex justify-center">
         <div className="h-full w-full max-w-[1100px] max-h-[60vh] aspect-video">
           <Player>
-            <Youtube videoId={data.lesson.videoId}  />
+            <Youtube videoId={data.lesson.videoId} />
             <DefaultUi />
           </Player>
         </div>
@@ -81,7 +87,8 @@ export const Video = ({ lessonSlug, stageLesson }: VideoProps) => {
           </div>
           <div className="flex flex-col gap-4">
             <a
-              href=""
+              href="https://discord.com/invite/rocketseat"
+              target="_blank"
               className="p-4 text-sm bg-green-500 flex items-center rounded font-bold uppercase gap-2 justify-center hover:bg-green-700 transition-colors"
             >
               <DiscordLogo size={24} />
@@ -105,7 +112,9 @@ export const Video = ({ lessonSlug, stageLesson }: VideoProps) => {
               <FileArrowDown size={40} />
             </div>
             <div className="py-6 leading-relaxed ">
-              <strong className="text-2xl smll:text-base">Material Complementar</strong>
+              <strong className="text-2xl smll:text-base">
+                Material Complementar
+              </strong>
               <p className="text-sm text-gray-200 mt-2 sml:text-xs">
                 Acesse o material complementar para acelerar o seu
                 desenvolvimento
@@ -123,7 +132,9 @@ export const Video = ({ lessonSlug, stageLesson }: VideoProps) => {
               <Image size={40} />
             </div>
             <div className="py-6 leading-relaxed">
-              <strong className="text-2xl smll:text-base">Wallpapers exclusivos</strong>
+              <strong className="text-2xl smll:text-base">
+                Wallpapers exclusivos
+              </strong>
               <p className="text-sm text-gray-200 mt-2 sml:text-xs">
                 Baixe wallpapers exclusivos do Ignite Lab e personalize a sua
                 máquina

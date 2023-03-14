@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import { TypeSubscribeValues } from "../components/RegisterSubscriber";
+import { Stage } from "../graphql/generated";
 import { TypeTeacher } from "./TypeTeacher";
 
 export interface TypeForm {
@@ -11,4 +12,6 @@ export interface TypeForm {
   handleSubscribe: React.FormEventHandler<HTMLFormElement>;
   children?: ReactNode;
   formLesson?: boolean;
+  lessonSlug?: string;
+  stageLesson?: Stage;
 }

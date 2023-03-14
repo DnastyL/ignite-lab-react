@@ -1,0 +1,8 @@
+mutation updateLesson($title: String, $slug: String!, $newSlug: String, $videoId: String, $lessonType: LessonType, $description: String, $availableAt: DateTime) {
+  updateLesson(
+    data: {title: $title, videoId: $videoId, slug: $newSlug, lessonType: $lessonType, description: $description, availableAt: $availableAt}
+    where: {slug: $slug}
+  ) {
+    id
+  }
+}

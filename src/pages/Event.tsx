@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ModalCreateLesson } from "../components/ModalCreateLesson";
 import { ModalUpdateLesson } from "../components/ModalUpdateLesson";
 import { Header } from "../components/Header";
@@ -13,11 +13,12 @@ export const Event = () => {
   const { lessonSlug } = useParams<{ lessonSlug: string }>();
   const { teacherSlug } = useParams<{ teacherSlug: string }>();
   const navigate = useNavigate();
-  const { timeline, sessionStorageTeacher, sessionStorageSubscriber } = useContextValues();
+  const { timeline, sessionStorageTeacher, sessionStorageSubscriber } =
+    useContextValues();
   const [formLesson, setFormLesson] = useState(false);
+  const [updateLesson, setUpdateLesson] = useState(false);
   const [deleteLesson, setDeleteLesson] = useState(false);
   const [submitLesson, setSubmitLesson] = useState(false);
-  const [teacherId, setTeacherId] = useState<string | undefined>("");
   const [stageLesson] = useState<Stage>(Stage.Draft);
 
   const { data } = useGetTeacherBySlugQuery({
@@ -29,7 +30,6 @@ export const Event = () => {
   useEffect(() => {
     if (teacherSlug || subscriber) {
       verifiyRoute();
-      setTeacherId(data?.teacher?.id);
     }
   }, [data]);
 
@@ -46,6 +46,7 @@ export const Event = () => {
     }
   }, [teacherSlug, sessionStorageTeacher]);
 
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -58,23 +59,26 @@ export const Event = () => {
           teacherSlug={teacherSlug as string}
           formLesson={formLesson}
           setFormLesson={setFormLesson}
-          isOpen={formLesson}
         />
         <ModalUpdateLesson
+          isOpenUpdateLesson={updateLesson}
           isOpenDeleteLesson={deleteLesson}
           isOpenSubmitLesson={submitLesson}
-          setDeleteLesson={setDeleteLesson}
-          setSubmitLesson={setSubmitLesson}
+          setIsOpenDeleteLesson={setDeleteLesson}
+          setIsOpenSubmitLesson={setSubmitLesson}
+          setIsOpenUpdateLesson={setUpdateLesson}
           teacherSlug={teacherSlug as string}
           lessonSlug={lessonSlug as string}
+          stageLesson={stageLesson}
         />
         <Sidebar
           teacherSlug={teacherSlug}
-          teacherId={teacherId}
-          setSubmitLesson={setSubmitLesson}
+          teacherId={data?.teacher?.id}
           formLesson={formLesson}
+          setSubmitLesson={setSubmitLesson}
           setFormLesson={setFormLesson}
           setDeleteLesson={setDeleteLesson}
+          setUpdateLesson={setUpdateLesson}
         />
       </main>
     </div>

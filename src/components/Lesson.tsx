@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { CheckCircle, Lock, Trash } from "phosphor-react";
+import { CheckCircle, Lock, Trash, PencilSimple } from "phosphor-react";
 import { isPast, format } from "date-fns";
 import { Link, useParams } from "react-router-dom";
 import { useContextValues } from "../hooks/useContext";
@@ -13,9 +13,10 @@ interface LessonProps {
   avalaibleAt: Date;
   type: "live" | "class";
   teacherSlug?: string;
-  setSubmitLesson: React.Dispatch<React.SetStateAction<boolean>>;
-  setFormLesson: React.Dispatch<React.SetStateAction<boolean>>;
-  setDeleteLesson: React.Dispatch<React.SetStateAction<boolean>>;
+  setSubmitLesson?: React.Dispatch<React.SetStateAction<boolean>>;
+  setFormLesson?: React.Dispatch<React.SetStateAction<boolean>>;
+  setDeleteLesson?: React.Dispatch<React.SetStateAction<boolean>>;
+  setUpdateLesson?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Lesson = (props: LessonProps) => {
@@ -34,19 +35,18 @@ export const Lesson = (props: LessonProps) => {
 
   const isActiveLesson = lessonSlug === props.slug;
 
-
   useEffect(() => {
     if (isActiveLesson && teacherSlug) {
       axios
         .get(`/vi/${apiTarget}/sddefault.jpg`)
         .then((response) => {
-          if (response.status === 200) {
+          if (response.status === 200 && props.setSubmitLesson) {
             props.setSubmitLesson(true);
           }
         })
         .catch((error) => {
           console.log(error);
-          props.setSubmitLesson(false);
+          props.setSubmitLesson ? props.setSubmitLesson(false) : null;
         });
     }
   }, [apiTarget, isActiveLesson]);
@@ -61,15 +61,29 @@ export const Lesson = (props: LessonProps) => {
               className={classNames("hover:cursor-pointer", {
                 "hover:cursor-not-allowed opacity-20": !isActiveLesson,
               })}
-              onClick={() => isActiveLesson && props.setDeleteLesson(true)}
+              onClick={() =>
+                isActiveLesson && props.setDeleteLesson
+                  ? props.setDeleteLesson(true)
+                  : null
+              }
             >
-              <Trash size={20} color="red" />  
+              <Trash size={20} color="red" />
+            </span>
+            <span
+              className={classNames("hover:cursor-pointer", {
+                "hover:cursor-not-allowed opacity-20": !isActiveLesson,
+              })}
+              onClick={() =>
+                isActiveLesson && props.setUpdateLesson
+                  ? props.setUpdateLesson(true)
+                  : null
+              }
+            >
+              <PencilSimple size={20} color="#00875F" />
             </span>
           </span>
         </div>
-      ) : (
-        ""
-      )}
+      ) : null}
 
       <Link
         to={
@@ -77,7 +91,7 @@ export const Lesson = (props: LessonProps) => {
             ? `/event/${sessionStorageSubscriber.slug}/lesson/${props.slug}`
             : `/instructor/event/${props.teacherSlug}/lesson/${props.slug}`
         }
-        onClick={() => props.setFormLesson(false)}
+        onClick={() => props.setFormLesson && props.setFormLesson(false)}
         className="hover:cursor-default"
       >
         <div className="group hover:cursor-pointer">

@@ -1,13 +1,14 @@
-import { PaperPlaneRight } from "phosphor-react";
-import { useState } from "react";
+import { PaperPlaneRight, SignOut } from "phosphor-react";
+import { useEffect, useState } from "react";
 import {
-  useGetLessonByTeacherQuery,
-  useGetLessonsQuery,
+  useGetLessonByTeacherLazyQuery,
+  useGetLessonsLazyQuery,
 } from "../graphql/generated";
 import { useContextValues } from "../hooks/useContext";
 import { Button } from "./Button";
 import { Lesson } from "./Lesson";
 import classNames from "classnames";
+import { useNavigate } from "react-router-dom";
 
 type SiderbarType = {
   teacherSlug: string | undefined;
@@ -16,20 +17,63 @@ type SiderbarType = {
   setFormLesson: React.Dispatch<React.SetStateAction<boolean>>;
   setDeleteLesson: React.Dispatch<React.SetStateAction<boolean>>;
   setSubmitLesson: React.Dispatch<React.SetStateAction<boolean>>;
+  setUpdateLesson: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const Sidebar = ({ teacherSlug, teacherId, formLesson, setFormLesson, setDeleteLesson, setSubmitLesson }: SiderbarType) => {
-  const { data } = useGetLessonsQuery();
-  const { data: lessonTeacherData } = useGetLessonByTeacherQuery({
-    variables: {
-      id: teacherId,
-    },
-  });
+export const Sidebar = ({
+  teacherSlug,
+  teacherId,
+  formLesson,
+  setFormLesson,
+  setDeleteLesson,
+  setSubmitLesson,
+  setUpdateLesson,
+}: SiderbarType) => {
+  const [fetchLessons, { data }] = useGetLessonsLazyQuery();
+  const [fetchTeacherLessons, { data: lessonTeacherData, fetchMore }] =
+    useGetLessonByTeacherLazyQuery({
+      variables: {
+        id: teacherId,
+      },
+    });
+  const [buttonActive, setButtonActive] = useState(false);
+  const {
+    timeline,
+    triggerTeacherLessons,
+    sessionStorageSubscriber,
+    sessionStorageTeacher,
+  } = useContextValues();
+  const navigate = useNavigate();
 
-  const[buttonActive, setButtonActive] = useState(false);
+  useEffect(() => {
+    if (teacherSlug && teacherId) {
+      fetchTeacherLessons({
+        variables: {
+          id: teacherId,
+        },
+      });
 
- 
-  const { timeline } = useContextValues();
+      fetchMore({
+        variables: {
+          id: teacherId,
+        },
+      });
+    } else {
+      fetchLessons();
+    }
+  }, [triggerTeacherLessons, teacherSlug, teacherId]);
+
+  function handleSignOut() {
+    if (window.confirm("Tem certeza que deseja se desconectar?")) {
+      if (sessionStorageSubscriber) {
+        sessionStorage.removeItem("subscriber");
+      }
+      if (sessionStorageTeacher) {
+        sessionStorage.removeItem("teacher");
+      }
+      return navigate(`/`);
+    }
+  }
 
   return (
     <aside
@@ -39,8 +83,11 @@ export const Sidebar = ({ teacherSlug, teacherId, formLesson, setFormLesson, set
           : "w-full bg-gray-700 p-6 border-l border-gray-600 sm:block"
       }
     >
-      <span className="font-bold text-2xl pb-6 mb-6 border-b border-gray-500 block">
+      <span className="font-bold text-2xl lgx:text-xl pb-6 mb-6 border-b border-gray-500 flex items-center justify-between">
         {teacherSlug ? "Suas aulas: " : "Cronograma de Aulas"}
+        <span className="hover:cursor-pointer" onClick={handleSignOut}>
+          <SignOut size={20} />
+        </span>
       </span>
       <div className="flex flex-col gap-12">
         <div className="flex flex-col gap-8">
@@ -53,9 +100,6 @@ export const Sidebar = ({ teacherSlug, teacherId, formLesson, setFormLesson, set
                     slug={lesson.slug}
                     avalaibleAt={new Date(lesson.availableAt)}
                     type={lesson.lessonType}
-                    setSubmitLesson={setButtonActive}
-                    setFormLesson={setFormLesson}
-                    setDeleteLesson={setDeleteLesson}
                   />
                 );
               })
@@ -71,6 +115,7 @@ export const Sidebar = ({ teacherSlug, teacherId, formLesson, setFormLesson, set
                     setSubmitLesson={setButtonActive}
                     setFormLesson={setFormLesson}
                     setDeleteLesson={setDeleteLesson}
+                    setUpdateLesson={setUpdateLesson}
                   />
                 );
               })}
@@ -94,13 +139,15 @@ export const Sidebar = ({ teacherSlug, teacherId, formLesson, setFormLesson, set
                 Adicionar Aula
               </Button>
             </span>
-            <span className={
-                  classNames("flex bg-green-500 w-[60px] h-[60px] smll:h-[50px] mt-3 items-center justify-center rounded-full hover:cursor-pointer",
-                  {
-                   "opacity-60 hover:cursor-not-allowed": !buttonActive,
-                  })}
-               onClick={() => buttonActive && setSubmitLesson(true)}
-        >
+            <span
+              className={classNames(
+                "flex bg-green-500 w-[60px] h-[60px] mt-3 items-center justify-center rounded-full hover:cursor-pointer",
+                {
+                  "opacity-60 hover:cursor-not-allowed": !buttonActive,
+                }
+              )}
+              onClick={() => buttonActive && setSubmitLesson(true)}
+            >
               <PaperPlaneRight size={28} />
             </span>
           </div>

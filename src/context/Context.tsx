@@ -9,10 +9,8 @@ type sessionStorageValues = {
 type ContextType = {
   timeline: boolean;
   setTimeline: React.Dispatch<React.SetStateAction<boolean>>;
-  user: boolean;
-  setUser: React.Dispatch<React.SetStateAction<boolean>>;
-  teacher: boolean;
-  setTeacher: React.Dispatch<React.SetStateAction<boolean>>;
+  setTriggerTeacherLessons: React.Dispatch<React.SetStateAction<boolean>>;
+  triggerTeacherLessons: boolean;
   lessonValues: TypeLesson;
   setLessonValues: React.Dispatch<React.SetStateAction<TypeLesson>>;
   apiTarget: string | undefined;
@@ -32,8 +30,7 @@ export const Context = createContext({} as ContextType);
 
 export const ContextProvider = (props: ContextProviderTpe) => {
   const [timeline, setTimeline] = useState(false);
-  const [user, setUser] = useState(false);
-  const [teacher, setTeacher] = useState(false);
+  const [triggerTeacherLessons, setTriggerTeacherLessons]= useState(false);
   const [lessonValues, setLessonValues] = useState<TypeLesson>(
     {} as TypeLesson
   );
@@ -65,7 +62,6 @@ export const ContextProvider = (props: ContextProviderTpe) => {
       }
       setSessionStorageTeacher(teacherObject);
       sessionStorage.setItem("teacher", JSON.stringify(teacherObject));
-      setTeacher(true);
     } else {
       if(sessionStorageSubscriber){
         sessionStorage.removeItem("subscriber")
@@ -75,7 +71,6 @@ export const ContextProvider = (props: ContextProviderTpe) => {
     }
   }
 
- 
 
 
   return (
@@ -83,10 +78,6 @@ export const ContextProvider = (props: ContextProviderTpe) => {
       value={{
         timeline,
         setTimeline,
-        user,
-        setUser,
-        teacher,
-        setTeacher,
         lessonValues,
         setLessonValues,
         apiTarget,
@@ -96,6 +87,8 @@ export const ContextProvider = (props: ContextProviderTpe) => {
         sessionStorageSubscriber,
         setSessionStorageSubscriber,
         handleSubmitUserInSessionStorage,
+        setTriggerTeacherLessons,
+        triggerTeacherLessons,
       }}
     >
       {props.children}

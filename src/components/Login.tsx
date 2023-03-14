@@ -1,9 +1,9 @@
 import classNames from "classnames";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  useGetSubscriberQuery,
-  useGetTeacherQuery,
+  useGetSubscriberLazyQuery,
+  useGetTeacherLazyQuery,
 } from "../graphql/generated";
 import { useContextValues } from "../hooks/useContext";
 import { Button } from "./Button";
@@ -16,14 +16,9 @@ export const Login = () => {
   const { handleSubmitUserInSessionStorage } = useContextValues();
   const navigate = useNavigate();
   const location = useLocation();
+  const [goFetch, { data: dataSubscriber }] = useGetSubscriberLazyQuery();
 
-  const { data } = useGetTeacherQuery({
-    variables: {
-      email: email.trim(),
-      password: password.trim(),
-    },
-  });
-  const { data: dataSubscriber } = useGetSubscriberQuery({
+  const [goFetchTeacher, { data }] = useGetTeacherLazyQuery({
     variables: {
       email: email.trim(),
       password: password.trim(),
@@ -32,6 +27,14 @@ export const Login = () => {
 
   async function handleTeacherLogin(event: FormEvent) {
     event.preventDefault();
+
+    const result = await goFetchTeacher({
+      variables: {
+        email: email.trim(),
+        password: password.trim(),
+      },
+    });
+    const data = result.data;
 
     if (data && data.teachers.length > 0) {
       data.teachers.map((teacher) => {
@@ -51,6 +54,15 @@ export const Login = () => {
 
   async function handleLogin(event: FormEvent) {
     event.preventDefault();
+
+    const result = await goFetch({
+      variables: {
+        email: email.trim(),
+        password: password.trim(),
+      },
+    });
+    const dataSubscriber = result.data;
+    
 
     if (dataSubscriber && dataSubscriber.subscribers.length > 0) {
       dataSubscriber.subscribers.map((subscriber) => {
@@ -82,19 +94,21 @@ export const Login = () => {
           className="flex flex-col gap-2 w-full"
           autoComplete="off"
         >
-          <div className="relative">
+          <div className="relative w-full">
             <input
               type="email"
               className="peer"
               id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
             />
             <label
               htmlFor="email"
               className={classNames(
-                "absolute bg-gray-700 rounded top-4 px-1 left-5 cursor-text peer-focus:text-xs peer-focus:text-blue-500 peer-focus:-top-2 transition-all",
-                { "-top-2 text-xs transition-all": email }
+                "absolute bg-gray-700 rounded top-4 w-[90%] left-5 cursor-text peer-focus:max-w-max peer-focus:px-1 peer-focus:text-xs peer-focus:text-blue-500 peer-focus:-top-2 transition-all",
+                { "-top-2 text-xs transition-all max-w-max px-1": email }
               )}
             >
               Digite seu email
@@ -111,8 +125,8 @@ export const Login = () => {
             <label
               htmlFor="password"
               className={classNames(
-                "absolute bg-gray-700 rounded top-4 px-1 left-5 cursor-text peer-focus:text-xs peer-focus:text-blue-500 peer-focus:-top-2 transition-all",
-                { "-top-2 text-xs transition-all": password }
+                "absolute bg-gray-700 rounded top-4  left-5 cursor-text w-[90%] peer-focus:max-w-max peer-focus:px-1 peer-focus:text-xs peer-focus:text-blue-500 peer-focus:-top-2 transition-all",
+                { "-top-2 text-xs transition-all max-w-max px-1": password }
               )}
             >
               Digite sua senha
