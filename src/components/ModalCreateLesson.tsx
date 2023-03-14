@@ -4,33 +4,33 @@ import { useCreateLessonMutation } from "../graphql/generated";
 import { useContextValues } from "../hooks/useContext";
 import { Form } from "./Form";
 import { Button } from "./Button";
-import { refreshPage } from "../hooks/useRefreshPage";
 import { closeModal } from "../hooks/useCloseModal";
+import { TypeLesson } from "../types/TypeLesson";
+import { useNavigate } from "react-router-dom";
 
 type ModalCreateLessonType = {
   formLesson: boolean;
   setFormLesson: React.Dispatch<React.SetStateAction<boolean>>;
-  teacherSlug: string | undefined;
-  isOpen: boolean;
+  teacherSlug: string;
 };
 
 export const ModalCreateLesson = ({
   formLesson,
   setFormLesson,
   teacherSlug,
-  isOpen,
 }: ModalCreateLessonType) => {
-  const { lessonValues } = useContextValues();
+  const { lessonValues, setLessonValues } = useContextValues();
   const [createLesson, { loading }] = useCreateLessonMutation();
   const ref = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (isOpen) {
+    if (formLesson) {
       document.body.classList.add("overflow-hidden");
     } else {
       document.body.classList.remove("overflow-hidden");
     }
-  }, [isOpen]);
+  }, [formLesson]);
 
   async function handleSubscribeLesson(event: FormEvent) {
     event.preventDefault();
@@ -43,17 +43,18 @@ export const ModalCreateLesson = ({
           videoId: lessonValues.videoId,
           lessonType: lessonValues.lessonType,
           description: lessonValues.description,
-          teacherSlug: teacherSlug!,
+          teacherSlug: teacherSlug,
           availableAt: lessonValues.availableAt,
         },
       });
-      refreshPage();
+      setFormLesson(false);
+      navigate(`instructor/event/${teacherSlug}`);
     } catch (error) {
       console.log(error);
     }
   }
 
-  if (!isOpen) {
+  if (!formLesson) {
     return <></>;
   }
 
@@ -62,9 +63,12 @@ export const ModalCreateLesson = ({
       ref={ref}
       onClick={(event) => {
         const isClose = setFormLesson;
-        closeModal({ event, ref, isClose })}
-      } 
-      className="flex items-center justify-center fixed inset-0 bg-black bg-opacity-75 z-[9999]"
+        if (ref.current === event.target) {
+          setLessonValues({} as TypeLesson);
+        }
+        closeModal({ event, ref, isClose });
+      }}
+      className="flex items-center justify-center fixed inset-0 bg-black bg-opacity-50 z-[9999]"
     >
       <div className="p-8 bg-gray-700 border border-gray-500 rounded relative">
         <div className="p-3">
@@ -92,7 +96,10 @@ export const ModalCreateLesson = ({
         </Form>
         <span
           className="absolute right-[24px] top-[24px] hover:cursor-pointer"
-          onClick={() => setFormLesson(false)}
+          onClick={() => {
+            setLessonValues({} as TypeLesson);
+            return setFormLesson(false);
+          }}
         >
           <X size={24} />
         </span>

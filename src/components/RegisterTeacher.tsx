@@ -30,7 +30,7 @@ export const RegisterTeacher = () => {
     try {
       await createTeacher({
         variables: {
-          name: teacherValues.name,
+          name: teacherValues.name.trim(),
           avatarURL: teacherValues.avatarURL,
           email: teacherValues.email.trim(),
           bio: teacherValues.bio.trim(),
@@ -104,7 +104,7 @@ export const RegisterTeacher = () => {
             <input
               className="peer"
               placeholder=""
-              value={teacherValues.password}
+              value={teacherValues.password || ""}
               id="password"
               name="password"
               type="password"
@@ -119,9 +119,10 @@ export const RegisterTeacher = () => {
             <label
               htmlFor="password"
               className={classNames(
-                "absolute bg-gray-700 rounded top-4 px-1 left-5 cursor-text  peer-focus:text-xs peer-focus:text-blue-500 peer-focus:-top-2 transition-all",
+                "absolute bg-gray-700 rounded top-4 w-[90%] left-5 cursor-text peer-focus:px-1 peer-focus:max-w-max peer-focus:text-xs peer-focus:text-blue-500 peer-focus:-top-2 transition-all",
                 {
-                  "-top-2 text-xs transition-all": teacherValues?.password,
+                  "-top-2 text-xs transition-al px-1 max-w-max":
+                    teacherValues?.password,
                 }
               )}
             >

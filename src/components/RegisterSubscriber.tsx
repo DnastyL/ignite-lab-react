@@ -23,13 +23,14 @@ export const RegisterSubscriber = () => {
 
   const [createSubscriber, { loading, error }] = useCreateSubscriberMutation();
 
+
   async function handleSubscribe(event: FormEvent) {
     event.preventDefault();
 
     try {
       await createSubscriber({
         variables: {
-          name: subscribeValues.name,
+          name: subscribeValues.name.trim(),
           email: subscribeValues.email.trim(),
           password: subscribeValues.password.trim(),
           slug: subscribeValues.slug,
@@ -45,14 +46,11 @@ export const RegisterSubscriber = () => {
         return navigate(`/event/${subscribeValues.slug}`);
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       throw new Error(`Error on createSubscriber ${error} `);
     }
   }
 
-  
-
- 
   return (
     <div className="p-8 bg-gray-700 border border-gray-500 rounded">
       <strong className="text-2xl m-6 block">Inscreva-se gratuitamente</strong>
@@ -66,7 +64,7 @@ export const RegisterSubscriber = () => {
             <input
               className="peer"
               placeholder=""
-              value={subscribeValues.password}
+              value={subscribeValues.password || ""}
               id="password"
               name="password"
               type="password"
@@ -80,9 +78,10 @@ export const RegisterSubscriber = () => {
             <label
               htmlFor="password"
               className={classNames(
-                "absolute bg-gray-700 rounded top-4 px-1 left-5 cursor-text  peer-focus:text-xs peer-focus:text-blue-500 peer-focus:-top-2 transition-all",
+                "absolute bg-gray-700 rounded top-4  left-5 cursor-text w-[90%] peer-focus:px-1 peer-focus:max-w-max peer-focus:text-xs peer-focus:text-blue-500 peer-focus:-top-2 transition-all",
                 {
-                  "-top-2 text-xs transition-all": subscribeValues.password,
+                  "-top-2 text-xs transition-all px-1 max-w-max":
+                    subscribeValues.password,
                 }
               )}
             >
@@ -92,7 +91,10 @@ export const RegisterSubscriber = () => {
           <Button
             type="submit"
             disabled={
-              loading || !subscribeValues.name || !subscribeValues.email || !subscribeValues.password
+              loading ||
+              !subscribeValues.name ||
+              !subscribeValues.email ||
+              !subscribeValues.password
             }
           >
             Garantir sua Vaga
@@ -120,7 +122,7 @@ export const RegisterSubscriber = () => {
         </div>
         {error && (
           <span className="text-sm font-semibold text-red-900">
-              User already exists
+            User already exists
           </span>
         )}
       </div>
