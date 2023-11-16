@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { TypeForm } from "../types/TypeForm";
 import classNames from "classnames";
 import { LessonValuesForm } from "./LessonValuesForm";

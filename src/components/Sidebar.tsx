@@ -9,14 +9,14 @@ import { Button } from "./Button";
 import { Lesson } from "./Lesson";
 import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
+import { TypeModalAction } from "../types/TypeModalAction";
 
 type SiderbarType = {
   teacherSlug: string | undefined;
   teacherId: string | undefined;
   formLesson: boolean;
   setFormLesson: React.Dispatch<React.SetStateAction<boolean>>;
-  setDeleteLesson: React.Dispatch<React.SetStateAction<boolean>>;
-  setSubmitLesson: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsModalAction: React.Dispatch<React.SetStateAction<TypeModalAction>>;
   setUpdateLesson: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -25,8 +25,7 @@ export const Sidebar = ({
   teacherId,
   formLesson,
   setFormLesson,
-  setDeleteLesson,
-  setSubmitLesson,
+  setIsModalAction,
   setUpdateLesson,
 }: SiderbarType) => {
   const [fetchLessons, { data }] = useGetLessonsLazyQuery();
@@ -112,15 +111,15 @@ export const Sidebar = ({
                     avalaibleAt={new Date(lesson.availableAt)}
                     type={lesson.lessonType}
                     teacherSlug={teacherSlug}
-                    setSubmitLesson={setButtonActive}
                     setFormLesson={setFormLesson}
-                    setDeleteLesson={setDeleteLesson}
+                    setButtonActive={setButtonActive}
+                    setIsModalAction={setIsModalAction}
                     setUpdateLesson={setUpdateLesson}
                   />
                 );
               })}
         </div>
-        {teacherSlug && !formLesson ? (
+        {teacherSlug && (
           <div
             className={
               !timeline
@@ -135,7 +134,7 @@ export const Sidebar = ({
                   : "w-full "
               }
             >
-              <Button onClick={() => setFormLesson(true)}>
+              <Button disabled={formLesson} onClick={() => setFormLesson(true)}>
                 Adicionar Aula
               </Button>
             </span>
@@ -146,13 +145,11 @@ export const Sidebar = ({
                   "opacity-60 hover:cursor-not-allowed": !buttonActive,
                 }
               )}
-              onClick={() => buttonActive && setSubmitLesson(true)}
+              onClick={() => buttonActive && setIsModalAction({isModalDelete: false, isModalSubmit: true})}
             >
               <PaperPlaneRight size={28} />
             </span>
           </div>
-        ) : (
-          ""
         )}
       </div>
     </aside>

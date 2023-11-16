@@ -6,6 +6,7 @@ import { useContextValues } from "../hooks/useContext";
 import axios from "axios";
 import classNames from "classnames";
 import ptBR from "date-fns/locale/pt-BR";
+import { TypeModalAction } from "../types/TypeModalAction";
 
 interface LessonProps {
   title: string;
@@ -13,9 +14,9 @@ interface LessonProps {
   avalaibleAt: Date;
   type: "live" | "class";
   teacherSlug?: string;
-  setSubmitLesson?: React.Dispatch<React.SetStateAction<boolean>>;
   setFormLesson?: React.Dispatch<React.SetStateAction<boolean>>;
-  setDeleteLesson?: React.Dispatch<React.SetStateAction<boolean>>;
+  setButtonActive?: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsModalAction?: React.Dispatch<TypeModalAction>;
   setUpdateLesson?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -40,13 +41,13 @@ export const Lesson = (props: LessonProps) => {
       axios
         .get(`/vi/${apiTarget}/sddefault.jpg`)
         .then((response) => {
-          if (response.status === 200 && props.setSubmitLesson) {
-            props.setSubmitLesson(true);
+          if (response.status === 200 && props.setButtonActive) {
+            props.setButtonActive(true);
           }
         })
         .catch((error) => {
           console.log(error);
-          props.setSubmitLesson ? props.setSubmitLesson(false) : null;
+          props.setButtonActive ? props.setButtonActive(false) : null;
         });
     }
   }, [apiTarget, isActiveLesson]);
@@ -62,8 +63,8 @@ export const Lesson = (props: LessonProps) => {
                 "hover:cursor-not-allowed opacity-20": !isActiveLesson,
               })}
               onClick={() =>
-                isActiveLesson && props.setDeleteLesson
-                  ? props.setDeleteLesson(true)
+                isActiveLesson && props.setIsModalAction
+                  ? props.setIsModalAction({ isModalDelete: true, isModalSubmit: false })
                   : null
               }
             >
